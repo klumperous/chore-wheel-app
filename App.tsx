@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Animated,
   Dimensions,
+  Image,
 } from 'react-native';
 
 const CHORES = [
@@ -152,136 +153,92 @@ export default function App() {
   }, [wheelSize]);
 
   return (
-    <View style={styles.container}>
-      {/* Game Show Host Character */}
-      <View style={styles.characterContainer}>
-        <View style={styles.hostContainer}>
-          {/* Top Hat */}
-          <View style={styles.hatBrim} />
-          <View style={styles.hat} />
-          <View style={styles.hatTop} />
-          {/* Head */}
-          <View style={styles.head}>
-            <Text style={styles.headEmoji}>😄</Text>
-          </View>
-          {/* Body */}
-          <View style={styles.body}>
-            <Text style={styles.jacket}>🎭</Text>
-          </View>
-        </View>
-        <Text style={styles.characterText}>🎪 Spin to get your chore! 🎪</Text>
-      </View>
-
-      {/* Wheel Container */}
-      <View style={[styles.wheelWrapper, { width: wheelSize, height: wheelSize }]}>
-        <canvas
-          ref={canvasRef}
-          width={wheelSize}
-          height={wheelSize}
-          style={styles.canvas}
+    <View style={styles.mainContainer}>
+      {/* Game Show Host Image - Left Side */}
+      <View style={styles.hostImageContainer}>
+        <Image
+          source={require('./host.png')}
+          style={styles.hostImage}
+          resizeMode="contain"
         />
-        {/* Top pointer - pointing DOWN at 12 o'clock position */}
-        <View style={styles.topPointer} />
       </View>
 
-      {/* Spin Button */}
-      <TouchableOpacity
-        style={[styles.spinButton, isSpinning && styles.spinButtonDisabled]}
-        onPress={spin}
-        disabled={isSpinning}
-      >
-        <Text style={styles.spinButtonText}>
-          {isSpinning ? '🎡 Spinning...' : '🎡 SPIN IT! 🎡'}
-        </Text>
-      </TouchableOpacity>
+      {/* Main Content - Center */}
+      <View style={styles.container}>
+        {/* Title */}
+        <Text style={styles.title}>🎪 CHORE WHEEL 🎪</Text>
 
-      {/* Selected Chore Display */}
-      {selectedChore && (
-        <View style={styles.resultContainer}>
-          <Text style={styles.resultLabel}>🎉 Your chore is: 🎉</Text>
-          <Text style={styles.resultText}>{selectedChore}</Text>
+        {/* Wheel Container */}
+        <View style={[styles.wheelWrapper, { width: wheelSize, height: wheelSize }]}>
+          <canvas
+            ref={canvasRef}
+            width={wheelSize}
+            height={wheelSize}
+            style={styles.canvas}
+          />
+          {/* Top pointer - pointing DOWN at 12 o'clock position */}
+          <View style={styles.topPointer} />
         </View>
-      )}
+
+        {/* Spin Button */}
+        <TouchableOpacity
+          style={[styles.spinButton, isSpinning && styles.spinButtonDisabled]}
+          onPress={spin}
+          disabled={isSpinning}
+        >
+          <Text style={styles.spinButtonText}>
+            {isSpinning ? '🎡 Spinning...' : '🎡 SPIN IT! 🎡'}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Selected Chore Display */}
+        {selectedChore && (
+          <View style={styles.resultContainer}>
+            <Text style={styles.resultLabel}>🎉 Your chore is: 🎉</Text>
+            <Text style={styles.resultText}>{selectedChore}</Text>
+          </View>
+        )}
+      </View>
+
+      {/* Empty right side for balance */}
+      <View style={styles.hostImageContainer} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFD700',
+    paddingHorizontal: 20,
+  },
+  hostImageContainer: {
+    width: 120,
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  hostImage: {
+    width: '100%',
+    height: '100%',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFD700',
     paddingHorizontal: 20,
   },
-  characterContainer: {
-    marginBottom: 30,
-    alignItems: 'center',
-  },
-  hostContainer: {
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  hatBrim: {
-    width: 100,
-    height: 8,
-    backgroundColor: '#1a1a1a',
-    borderRadius: 50,
-    marginBottom: -2,
-  },
-  hat: {
-    width: 70,
-    height: 50,
-    backgroundColor: '#1a1a1a',
-    borderRadius: 50,
-    marginBottom: -8,
-    borderWidth: 2,
-    borderColor: '#000',
-  },
-  hatTop: {
-    width: 50,
-    height: 15,
-    backgroundColor: '#FFD700',
-    borderRadius: 50,
-    marginBottom: -5,
-    borderWidth: 2,
-    borderColor: '#000',
-  },
-  head: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FFDBAC',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#000',
-    marginBottom: 10,
-  },
-  headEmoji: {
-    fontSize: 50,
-  },
-  body: {
-    width: 90,
-    height: 60,
-    backgroundColor: '#FF1493',
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#000',
-  },
-  jacket: {
-    fontSize: 40,
-  },
-  characterText: {
-    fontSize: 18,
-    fontWeight: '800',
+  title: {
+    fontSize: 28,
+    fontWeight: '900',
     color: '#000',
-    marginTop: 10,
+    marginBottom: 20,
     textShadowColor: '#fff',
     textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 2,
+    textShadowRadius: 3,
   },
   wheelWrapper: {
     justifyContent: 'center',
