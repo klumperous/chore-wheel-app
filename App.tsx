@@ -6,8 +6,8 @@ import {
   StyleSheet,
   Animated,
   Dimensions,
-  Image,
 } from 'react-native';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 const CHORES = [
   '🔥 Clean Oven',
@@ -42,7 +42,8 @@ export default function App() {
 
     // Random number of full rotations plus random final position
     const randomRotation = Math.random() * 360 + 360 * 5;
-    const selectedIndex = Math.floor((randomRotation % 360) / (360 / CHORES.length));
+    const segmentAngle = 360 / CHORES.length;
+    const selectedIndex = Math.floor((randomRotation % 360) / segmentAngle);
 
     Animated.timing(spinValue, {
       toValue: randomRotation,
@@ -61,13 +62,44 @@ export default function App() {
 
   const { width } = Dimensions.get('window');
   const wheelSize = Math.min(width - 40, 350);
+  const radius = wheelSize / 2;
+
+  // Generate pie slices as SVG paths
+  const generateSlicePath = (index: number, total: number) => {
+    const sliceAngle = 360 / total;
+    const startAngle = (index * sliceAngle - 90) * (Math.PI / 180);
+    const endAngle = ((index + 1) * sliceAngle - 90) * (Math.PI / 180);
+
+    const x1 = radius + radius * Math.cos(startAngle);
+    const y1 = radius + radius * Math.sin(startAngle);
+    const x2 = radius + radius * Math.cos(endAngle);
+    const y2 = radius + radius * Math.sin(endAngle);
+
+    const largeArc = sliceAngle > 180 ? 1 : 0;
+    const path = `M ${radius} ${radius} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+
+    return path;
+  };
 
   return (
     <View style={styles.container}>
-      {/* Character */}
+      {/* Game Show Host Character */}
       <View style={styles.characterContainer}>
-        <Text style={styles.characterEmoji}>🎩</Text>
-        <Text style={styles.characterText}>Spin to get your chore!</Text>
+        <View style={styles.hostContainer}>
+          {/* Top Hat */}
+          <View style={styles.hatBrim} />
+          <View style={styles.hat} />
+          <View style={styles.hatTop} />
+          {/* Head */}
+          <View style={styles.head}>
+            <Text style={styles.headEmoji}>😄</Text>
+          </View>
+          {/* Body */}
+          <View style={styles.body}>
+            <Text style={styles.jacket}>🎭</Text>
+          </View>
+        </View>
+        <Text style={styles.characterText}>🎪 Spin to get your chore! 🎪</Text>
       </View>
 
       {/* Wheel */}
@@ -82,31 +114,56 @@ export default function App() {
             },
           ]}
         >
+          <Svg width={wheelSize} height={wheelSize} viewBox={`0 0 ${wheelSize} ${wheelSize}`}>
+            {CHORES.map((chore, index) => {
+              const sliceAngle = 360 / CHORES.length;
+              const textAngle = (index * sliceAngle + sliceAngle / 2 - 90) * (Math.PI / 180);
+              const textRadius = radius * 0.65;
+              const textX = radius + textRadius * Math.cos(textAngle);
+              const textY = radius + textRadius * Math.sin(textAngle);
+
+              return (
+                <G key={index}>
+                  <Path
+                    d={generateSlicePath(index, CHORES.length)}
+                    fill={COLORS[index]}
+                    stroke="rgba(0,0,0,0.3)"
+                    strokeWidth="2"
+                  />
+                </G>
+              );
+            })}
+            {/* Center circle */}
+            <Circle cx={radius} cy={radius} r="20" fill="#fff" stroke="#333" strokeWidth="3" />
+          </Svg>
+
+          {/* Chore labels positioned around wheel */}
           {CHORES.map((chore, index) => {
-            const angle = (index / CHORES.length) * 360;
-            const isSelected = chore === selectedChore;
+            const sliceAngle = 360 / CHORES.length;
+            const textAngle = (index * sliceAngle + sliceAngle / 2) * (Math.PI / 180);
+            const textRadius = radius * 0.65;
+            const textX = radius + textRadius * Math.cos(textAngle - Math.PI / 2);
+            const textY = radius + textRadius * Math.sin(textAngle - Math.PI / 2);
+            const rotation = (index * sliceAngle + sliceAngle / 2) - 90;
 
             return (
-              <View
-                key={index}
+              <Animated.View
+                key={`label-${index}`}
                 style={[
-                  styles.segment,
+                  styles.segmentLabel,
                   {
-                    backgroundColor: COLORS[index],
-                    transform: [{ rotate: `${angle}deg` }],
-                    borderWidth: isSelected ? 4 : 2,
-                    borderColor: isSelected ? '#000' : 'rgba(0,0,0,0.3)',
+                    left: textX - 30,
+                    top: textY - 15,
+                    transform: [{ rotate: `${rotation}deg` }],
                   },
                 ]}
               >
                 <Text style={styles.segmentText}>{chore}</Text>
-              </View>
+              </Animated.View>
             );
           })}
         </Animated.View>
 
-        {/* Center pointer */}
-        <View style={styles.centerPointer} />
         {/* Top pointer */}
         <View style={styles.topPointer} />
       </View>
@@ -118,14 +175,14 @@ export default function App() {
         disabled={isSpinning}
       >
         <Text style={styles.spinButtonText}>
-          {isSpinning ? 'Spinning...' : 'SPIN!'}
+          {isSpinning ? '🎡 Spinning...' : '🎡 SPIN IT! 🎡'}
         </Text>
       </TouchableOpacity>
 
       {/* Selected Chore Display */}
       {selectedChore && (
         <View style={styles.resultContainer}>
-          <Text style={styles.resultLabel}>Your chore is:</Text>
+          <Text style={styles.resultLabel}>🎉 Your chore is: 🎉</Text>
           <Text style={styles.resultText}>{selectedChore}</Text>
         </View>
       )}
@@ -133,80 +190,122 @@ export default function App() {
   );
 }
 
+const G = ({ children }: { children: React.ReactNode }) => <>{children}</>;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FFD700',
     paddingHorizontal: 20,
   },
   characterContainer: {
     marginBottom: 30,
     alignItems: 'center',
   },
-  characterEmoji: {
-    fontSize: 80,
+  hostContainer: {
+    alignItems: 'center',
     marginBottom: 10,
+  },
+  hatBrim: {
+    width: 100,
+    height: 8,
+    backgroundColor: '#1a1a1a',
+    borderRadius: 50,
+    marginBottom: -2,
+  },
+  hat: {
+    width: 70,
+    height: 50,
+    backgroundColor: '#1a1a1a',
+    borderRadius: 50,
+    marginBottom: -8,
+    borderWidth: 2,
+    borderColor: '#000',
+  },
+  hatTop: {
+    width: 50,
+    height: 15,
+    backgroundColor: '#FFD700',
+    borderRadius: 50,
+    marginBottom: -5,
+    borderWidth: 2,
+    borderColor: '#000',
+  },
+  head: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#FFDBAC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#000',
+    marginBottom: 10,
+  },
+  headEmoji: {
+    fontSize: 50,
+  },
+  body: {
+    width: 90,
+    height: 60,
+    backgroundColor: '#FF1493',
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#000',
+  },
+  jacket: {
+    fontSize: 40,
   },
   characterText: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '800',
+    color: '#000',
+    marginTop: 10,
+    textShadowColor: '#fff',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 2,
   },
   wheelWrapper: {
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 40,
+    position: 'relative',
   },
   wheel: {
-    borderRadius: 999,
-    overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
+    borderRadius: 999,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
     shadowRadius: 16,
     elevation: 12,
+    overflow: 'visible',
   },
-  segment: {
+  segmentLabel: {
     position: 'absolute',
-    width: '100%',
-    height: '50%',
-    justifyContent: 'flex-end',
+    width: 60,
+    height: 30,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 30,
-    transformOrigin: '50% 100%',
   },
   segmentText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
-    color: '#fff',
+    color: '#000',
     textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowColor: 'rgba(255,255,255,0.8)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
-  centerPointer: {
-    position: 'absolute',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#fff',
-    borderWidth: 3,
-    borderColor: '#333',
-    zIndex: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-  },
   topPointer: {
     position: 'absolute',
-    top: -15,
+    top: -20,
     width: 0,
     height: 0,
     borderLeftWidth: 15,
@@ -218,11 +317,13 @@ const styles = StyleSheet.create({
     zIndex: 11,
   },
   spinButton: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#FF1493',
     paddingVertical: 16,
     paddingHorizontal: 40,
     borderRadius: 50,
     marginBottom: 30,
+    borderWidth: 4,
+    borderColor: '#000',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -243,6 +344,8 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 15,
     alignItems: 'center',
+    borderWidth: 4,
+    borderColor: '#000',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -251,12 +354,13 @@ const styles = StyleSheet.create({
   },
   resultLabel: {
     fontSize: 16,
-    color: '#666',
+    color: '#000',
     marginBottom: 8,
+    fontWeight: '700',
   },
   resultText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FF6B6B',
+    color: '#FF1493',
   },
 });
