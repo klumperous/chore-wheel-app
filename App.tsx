@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Animated,
   Dimensions,
-  Canvas,
 } from 'react-native';
 
 const CHORES = [
@@ -45,7 +44,11 @@ export default function App() {
     spinValue.setValue(0);
 
     const randomRotation = Math.random() * 360 + 360 * 5;
-    const selectedIndex = Math.floor((randomRotation % 360) / SEGMENT_ANGLE);
+    // Pointer is at top (270 degrees in canvas coords), so calculate which slice it lands on
+    const normalizedRotation = randomRotation % 360;
+    const pointerAngle = 270; // Top of wheel
+    const landingAngle = (pointerAngle - normalizedRotation + 360) % 360;
+    const selectedIndex = Math.floor(landingAngle / SEGMENT_ANGLE) % SEGMENTS;
 
     Animated.timing(spinValue, {
       toValue: randomRotation,
@@ -177,7 +180,7 @@ export default function App() {
           height={wheelSize}
           style={styles.canvas}
         />
-        {/* Top pointer */}
+        {/* Top pointer - pointing DOWN at 12 o'clock position */}
         <View style={styles.topPointer} />
       </View>
 
@@ -301,14 +304,16 @@ const styles = StyleSheet.create({
   topPointer: {
     position: 'absolute',
     top: -20,
+    left: '50%',
+    marginLeft: -15,
     width: 0,
     height: 0,
     borderLeftWidth: 15,
     borderRightWidth: 15,
-    borderBottomWidth: 30,
+    borderTopWidth: 30,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderBottomColor: '#333',
+    borderTopColor: '#333',
     zIndex: 11,
   },
   spinButton: {
