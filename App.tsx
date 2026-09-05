@@ -7,7 +7,6 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
 
 const CHORES = [
   '🔥 Clean Oven',
@@ -29,6 +28,9 @@ const COLORS = [
   '#BB8FCE',
 ];
 
+const SEGMENTS = CHORES.length;
+const SEGMENT_ANGLE = 360 / SEGMENTS;
+
 export default function App() {
   const [selectedChore, setSelectedChore] = useState<string | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -40,10 +42,8 @@ export default function App() {
     setIsSpinning(true);
     spinValue.setValue(0);
 
-    // Random number of full rotations plus random final position
     const randomRotation = Math.random() * 360 + 360 * 5;
-    const segmentAngle = 360 / CHORES.length;
-    const selectedIndex = Math.floor((randomRotation % 360) / segmentAngle);
+    const selectedIndex = Math.floor((randomRotation % 360) / SEGMENT_ANGLE);
 
     Animated.timing(spinValue, {
       toValue: randomRotation,
@@ -62,24 +62,6 @@ export default function App() {
 
   const { width } = Dimensions.get('window');
   const wheelSize = Math.min(width - 40, 350);
-  const radius = wheelSize / 2;
-
-  // Generate pie slices as SVG paths
-  const generateSlicePath = (index: number, total: number) => {
-    const sliceAngle = 360 / total;
-    const startAngle = (index * sliceAngle - 90) * (Math.PI / 180);
-    const endAngle = ((index + 1) * sliceAngle - 90) * (Math.PI / 180);
-
-    const x1 = radius + radius * Math.cos(startAngle);
-    const y1 = radius + radius * Math.sin(startAngle);
-    const x2 = radius + radius * Math.cos(endAngle);
-    const y2 = radius + radius * Math.sin(endAngle);
-
-    const largeArc = sliceAngle > 180 ? 1 : 0;
-    const path = `M ${radius} ${radius} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
-
-    return path;
-  };
 
   return (
     <View style={styles.container}>
@@ -114,56 +96,31 @@ export default function App() {
             },
           ]}
         >
-          <Svg width={wheelSize} height={wheelSize} viewBox={`0 0 ${wheelSize} ${wheelSize}`}>
-            {CHORES.map((chore, index) => {
-              const sliceAngle = 360 / CHORES.length;
-              const textAngle = (index * sliceAngle + sliceAngle / 2 - 90) * (Math.PI / 180);
-              const textRadius = radius * 0.65;
-              const textX = radius + textRadius * Math.cos(textAngle);
-              const textY = radius + textRadius * Math.sin(textAngle);
-
-              return (
-                <G key={index}>
-                  <Path
-                    d={generateSlicePath(index, CHORES.length)}
-                    fill={COLORS[index]}
-                    stroke="rgba(0,0,0,0.3)"
-                    strokeWidth="2"
-                  />
-                </G>
-              );
-            })}
-            {/* Center circle */}
-            <Circle cx={radius} cy={radius} r="20" fill="#fff" stroke="#333" strokeWidth="3" />
-          </Svg>
-
-          {/* Chore labels positioned around wheel */}
           {CHORES.map((chore, index) => {
-            const sliceAngle = 360 / CHORES.length;
-            const textAngle = (index * sliceAngle + sliceAngle / 2) * (Math.PI / 180);
-            const textRadius = radius * 0.65;
-            const textX = radius + textRadius * Math.cos(textAngle - Math.PI / 2);
-            const textY = radius + textRadius * Math.sin(textAngle - Math.PI / 2);
-            const rotation = (index * sliceAngle + sliceAngle / 2) - 90;
+            const rotation = index * SEGMENT_ANGLE;
+            const isSelected = chore === selectedChore;
 
             return (
-              <Animated.View
-                key={`label-${index}`}
+              <View
+                key={index}
                 style={[
-                  styles.segmentLabel,
+                  styles.segment,
                   {
-                    left: textX - 30,
-                    top: textY - 15,
+                    backgroundColor: COLORS[index],
                     transform: [{ rotate: `${rotation}deg` }],
+                    borderWidth: isSelected ? 4 : 2,
+                    borderColor: isSelected ? '#000' : 'rgba(0,0,0,0.3)',
                   },
                 ]}
               >
                 <Text style={styles.segmentText}>{chore}</Text>
-              </Animated.View>
+              </View>
             );
           })}
         </Animated.View>
 
+        {/* Center circle */}
+        <View style={styles.centerPointer} />
         {/* Top pointer */}
         <View style={styles.topPointer} />
       </View>
@@ -189,8 +146,6 @@ export default function App() {
     </View>
   );
 }
-
-const G = ({ children }: { children: React.ReactNode }) => <>{children}</>;
 
 const styles = StyleSheet.create({
   container: {
@@ -285,14 +240,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 16,
     elevation: 12,
-    overflow: 'visible',
   },
-  segmentLabel: {
+  segment: {
     position: 'absolute',
-    width: 60,
-    height: 30,
-    justifyContent: 'center',
+    width: '100%',
+    height: '50%',
+    justifyContent: 'flex-end',
     alignItems: 'center',
+    paddingBottom: 20,
+    transformOrigin: '50% 100%',
   },
   segmentText: {
     fontSize: 11,
@@ -302,6 +258,21 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(255,255,255,0.8)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
+  },
+  centerPointer: {
+    position: 'absolute',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    borderWidth: 3,
+    borderColor: '#333',
+    zIndex: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
   topPointer: {
     position: 'absolute',
