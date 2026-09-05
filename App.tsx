@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Animated,
   Dimensions,
+  Canvas,
 } from 'react-native';
 
 const CHORES = [
@@ -35,6 +36,7 @@ export default function App() {
   const [selectedChore, setSelectedChore] = useState<string | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
   const spinValue = useRef(new Animated.Value(0)).current;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const spin = () => {
     if (isSpinning) return;
@@ -48,20 +50,103 @@ export default function App() {
     Animated.timing(spinValue, {
       toValue: randomRotation,
       duration: 4000,
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start(() => {
       setSelectedChore(CHORES[selectedIndex]);
       setIsSpinning(false);
     });
   };
 
-  const spin360 = spinValue.interpolate({
-    inputRange: [0, 360],
-    outputRange: ['0deg', '360deg'],
-  });
-
   const { width } = Dimensions.get('window');
   const wheelSize = Math.min(width - 40, 350);
+  const radius = wheelSize / 2;
+
+  useEffect(() => {
+    const listener = spinValue.addListener(({ value }) => {
+      if (canvasRef.current) {
+        drawWheel(value);
+      }
+    });
+
+    return () => spinValue.removeListener(listener);
+  }, []);
+
+  const drawWheel = (rotation: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const centerX = radius;
+    const centerY = radius;
+
+    // Clear canvas
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, wheelSize, wheelSize);
+
+    // Save state and apply rotation
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate((rotation * Math.PI) / 180);
+    ctx.translate(-centerX, -centerY);
+
+    // Draw each pie wedge
+    CHORES.forEach((chore, index) => {
+      const startAngle = (index * SEGMENT_ANGLE * Math.PI) / 180;
+      const endAngle = ((index + 1) * SEGMENT_ANGLE * Math.PI) / 180;
+
+      // Draw wedge
+      ctx.fillStyle = COLORS[index];
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.arc(centerX, centerY, radius - 2, startAngle, endAngle);
+      ctx.lineTo(centerX, centerY);
+      ctx.fill();
+
+      // Draw border
+      ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.arc(centerX, centerY, radius - 2, startAngle, endAngle);
+      ctx.lineTo(centerX, centerY);
+      ctx.stroke();
+
+      // Draw text along the wedge
+      const textAngle = startAngle + (endAngle - startAngle) / 2;
+      const textRadius = radius * 0.65;
+      const textX = centerX + textRadius * Math.cos(textAngle);
+      const textY = centerY + textRadius * Math.sin(textAngle);
+
+      ctx.save();
+      ctx.translate(textX, textY);
+      ctx.rotate(textAngle + Math.PI / 2);
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 11px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(255,255,255,0.8)';
+      ctx.shadowBlur = 3;
+      ctx.fillText(chore, 0, 0);
+      ctx.restore();
+    });
+
+    // Draw center circle
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 20, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.restore();
+  };
+
+  useEffect(() => {
+    drawWheel(0);
+  }, [wheelSize]);
 
   return (
     <View style={styles.container}>
@@ -84,43 +169,14 @@ export default function App() {
         <Text style={styles.characterText}>🎪 Spin to get your chore! 🎪</Text>
       </View>
 
-      {/* Wheel */}
+      {/* Wheel Container */}
       <View style={[styles.wheelWrapper, { width: wheelSize, height: wheelSize }]}>
-        <Animated.View
-          style={[
-            styles.wheel,
-            {
-              transform: [{ rotate: spin360 }],
-              width: wheelSize,
-              height: wheelSize,
-            },
-          ]}
-        >
-          {CHORES.map((chore, index) => {
-            const rotation = index * SEGMENT_ANGLE;
-            const isSelected = chore === selectedChore;
-
-            return (
-              <View
-                key={index}
-                style={[
-                  styles.segment,
-                  {
-                    backgroundColor: COLORS[index],
-                    transform: [{ rotate: `${rotation}deg` }],
-                    borderWidth: isSelected ? 4 : 2,
-                    borderColor: isSelected ? '#000' : 'rgba(0,0,0,0.3)',
-                  },
-                ]}
-              >
-                <Text style={styles.segmentText}>{chore}</Text>
-              </View>
-            );
-          })}
-        </Animated.View>
-
-        {/* Center circle */}
-        <View style={styles.centerPointer} />
+        <canvas
+          ref={canvasRef}
+          width={wheelSize}
+          height={wheelSize}
+          style={styles.canvas}
+        />
         {/* Top pointer */}
         <View style={styles.topPointer} />
       </View>
@@ -229,50 +285,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
     position: 'relative',
-  },
-  wheel: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
     borderRadius: 999,
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
     shadowRadius: 16,
     elevation: 12,
   },
-  segment: {
-    position: 'absolute',
+  canvas: {
     width: '100%',
-    height: '50%',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    paddingBottom: 20,
-    transformOrigin: '50% 100%',
-  },
-  segmentText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#000',
-    textAlign: 'center',
-    textShadowColor: 'rgba(255,255,255,0.8)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
-  centerPointer: {
-    position: 'absolute',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#fff',
-    borderWidth: 3,
-    borderColor: '#333',
-    zIndex: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
+    height: '100%',
+    borderRadius: 999,
   },
   topPointer: {
     position: 'absolute',
