@@ -147,9 +147,9 @@
       isSpinning = true;
       spinBtn.disabled = true;
       banner.innerText = "🌀 Spinning...";
-      const duration = 8500;
+      const duration = 13500;
       const startAngle = currentAngle;
-      const fullSpins = (14 + Math.random() * 5) * 2 * Math.PI;
+      const fullSpins = (20 + Math.random() * 6) * 2 * Math.PI;
       const targetAngle = startAngle + fullSpins + Math.random() * 2 * Math.PI;
       const startTime = performance.now();
       function animate(now) {
