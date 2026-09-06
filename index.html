@@ -6,204 +6,45 @@
   <title>Chore Roulette</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #ffd966;
-      --panel: #ffffff;
-      --accent: #ff4757;
-      --text: #2d3436;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 24px 16px 40px;
-    }
-    .host-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .host-img {
-      width: 95px;
-      height: 95px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 4px solid #fff;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-      background: #ffeaa7;
-    }
-    .host-fallback {
-      display: none;
-      width: 95px;
-      height: 95px;
-      border-radius: 50%;
-      background: #ffeaa7;
-      border: 4px solid #fff;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-      font-size: 45px;
-      line-height: 95px;
-      text-align: center;
-    }
-    h1 {
-      font-size: 1.4rem;
-      font-weight: 800;
-      margin-top: 6px;
-      color: #2d3436;
-    }
-    .wheel-card {
-      position: relative;
-      width: 360px;
-      max-width: 92vw;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .pointer {
-      position: absolute;
-      top: -14px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 16px solid transparent;
-      border-right: 16px solid transparent;
-      border-top: 28px solid var(--accent);
-      z-index: 20;
-      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
-    }
-    canvas {
-      width: 340px;
-      height: 340px;
-      max-width: 88vw;
-      max-height: 88vw;
-      border-radius: 50%;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-      background: #fff;
-    }
-    .center-pin {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 48px;
-      height: 48px;
-      background: #ffffff;
-      border-radius: 50%;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      pointer-events: none;
-    }
-    .btn-spin {
-      background: linear-gradient(135deg, #ff4757, #ff6b81);
-      color: #ffffff;
-      border: 3px solid #fff;
-      padding: 14px 40px;
-      font-size: 1.25rem;
-      font-weight: 800;
-      border-radius: 9999px;
-      box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
-      cursor: pointer;
-      margin-top: 18px;
-      margin-bottom: 14px;
-      letter-spacing: 0.5px;
-    }
-    .btn-spin:active { transform: scale(0.97); }
-    .btn-spin:disabled { opacity: 0.6; cursor: not-allowed; }
-    .banner {
-      min-height: 52px;
-      width: 100%;
-      max-width: 360px;
-      background: #ffffff;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 16px;
-      font-size: 1.1rem;
-      font-weight: 800;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .manager {
-      width: 100%;
-      max-width: 360px;
-      background: #fff7e6;
-      border-radius: 16px;
-      padding: 14px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-    }
-    .input-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-    .input-row input {
-      flex: 1;
-      padding: 10px 14px;
-      border: 2px solid #fed330;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 700;
-      outline: none;
-    }
-    .input-row button {
-      background: #2d3436;
-      color: #fff;
-      border: none;
-      padding: 0 16px;
-      border-radius: 10px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      max-height: 120px;
-      overflow-y: auto;
-    }
-    .chip {
-      background: #ffffff;
-      border: 1px solid #fed330;
-      padding: 5px 10px;
-      border-radius: 9999px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
+    :root { --bg: #ffd966; --panel: #ffffff; --accent: #ff4757; --text: #2d3436; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Nunito", sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px 16px 40px; }
+    .host-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 10px; }
+    .host-img { width: 95px; height: 95px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 6px 16px rgba(0,0,0,0.15); background: #ffeaa7; }
+    .host-fallback { display: none; width: 95px; height: 95px; border-radius: 50%; background: #ffeaa7; border: 4px solid #fff; box-shadow: 0 6px 16px rgba(0,0,0,0.15); font-size: 45px; line-height: 95px; text-align: center; }
+    h1 { font-size: 1.35rem; font-weight: 900; margin-top: 6px; color: #2d3436; }
+    .wheel-card { position: relative; width: 350px; max-width: 92vw; display: flex; flex-direction: column; align-items: center; }
+    .pointer { position: absolute; top: -12px; left: 50%; transform-origin: top center; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 28px solid var(--accent); z-index: 20; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.35)); transition: transform 0.05s ease-out; }
+    .pointer.tick { transform: translateX(-50%) rotate(-18deg); }
+    canvas { width: 340px; height: 340px; max-width: 88vw; max-height: 88vw; border-radius: 50%; box-shadow: 0 12px 32px rgba(0,0,0,0.2); background: #fff; }
+    .center-pin { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 46px; height: 46px; background: #ffffff; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; font-size: 20px; pointer-events: none; }
+    .btn-spin { background: linear-gradient(135deg, #ff4757, #ff6b81); color: #ffffff; border: 3px solid #fff; padding: 14px 44px; font-size: 1.25rem; font-weight: 900; border-radius: 9999px; box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4); cursor: pointer; margin-top: 16px; margin-bottom: 12px; }
+    .btn-spin:disabled { opacity: 0.5; cursor: not-allowed; }
+    .banner { min-height: 52px; width: 100%; max-width: 350px; background: #ffffff; border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 10px 16px; font-size: 1.1rem; font-weight: 800; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 18px; text-align: center; }
+    .manager { width: 100%; max-width: 350px; background: #fff7e6; border-radius: 16px; padding: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+    .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .input-row input { flex: 1; padding: 10px 14px; border: 2px solid #fed330; border-radius: 10px; font-size: 1rem; font-weight: 700; outline: none; }
+    .input-row button { background: #2d3436; color: #fff; border: none; padding: 0 16px; border-radius: 10px; font-weight: 800; cursor: pointer; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; max-height: 120px; overflow-y: auto; }
+    .chip { background: #ffffff; border: 1px solid #fed330; padding: 5px 10px; border-radius: 9999px; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
     .chip span { cursor: pointer; color: #ff4757; font-weight: 900; }
   </style>
 </head>
 <body>
-
   <div class="host-wrap">
     <img id="hostImg" class="host-img" src="host.png" alt="Host" onerror="showFallback()" />
     <div id="hostFallback" class="host-fallback">🎙️</div>
     <h1>✨ Spin to get your chore! ✨</h1>
   </div>
-
   <div class="wheel-card">
-    <div class="pointer"></div>
+    <div id="pointer" class="pointer"></div>
     <canvas id="wheelCanvas" width="700" height="700"></canvas>
     <div class="center-pin">⭐</div>
   </div>
-
   <button id="spinBtn" class="btn-spin">SPIN IT! 🎲</button>
-  <div id="winnerBanner" class="banner">Spin to decide!</div>
-
+  <div id="winnerBanner" class="banner">Spin to decide your fate!</div>
   <div class="manager">
     <form id="addForm" class="input-row">
       <input id="choreInput" type="text" placeholder="Add chore..." maxlength="20" required />
@@ -211,129 +52,123 @@
     </form>
     <div id="chipContainer" class="chips"></div>
   </div>
-
   <script>
     function showFallback() {
-      document.getElementById('hostImg').style.display = 'none';
-      document.getElementById('hostFallback').style.display = 'block';
+      document.getElementById("hostImg").style.display = "none";
+      document.getElementById("hostFallback").style.display = "block";
     }
-
-    const COLORS = ['#ffeaa7', '#74b9ff', '#ff7675', '#55efc4', '#a29bfe', '#fdcb6e', '#fab1a0', '#81ecec'];
-
-    let chores = JSON.parse(localStorage.getItem('chores_v2')) || [
-      'Clean Fridge', 'Dust', 'Organise Drawer', 'Clean Bathroom', 'Clean Windows', 'Wipe Doors', 'Clean Oven'
+    const COLORS = ["#ffeaa7", "#74b9ff", "#ff7675", "#55efc4", "#a29bfe", "#fdcb6e", "#fab1a0", "#81ecec"];
+    let chores = JSON.parse(localStorage.getItem("chores_v2")) || [
+      "Clean Fridge", "Dust", "Organise Drawer", "Clean Bathroom", "Clean Windows", "Wipe Doors", "Clean Oven"
     ];
-
-    const canvas = document.getElementById('wheelCanvas');
-    const ctx = canvas.getContext('2d');
-    const spinBtn = document.getElementById('spinBtn');
-    const banner = document.getElementById('winnerBanner');
-    const input = document.getElementById('choreInput');
-    const form = document.getElementById('addForm');
-    const chips = document.getElementById('chipContainer');
-
+    const canvas = document.getElementById("wheelCanvas");
+    const ctx = canvas.getContext("2d");
+    const pointer = document.getElementById("pointer");
+    const spinBtn = document.getElementById("spinBtn");
+    const banner = document.getElementById("winnerBanner");
+    const input = document.getElementById("choreInput");
+    const form = document.getElementById("addForm");
+    const chips = document.getElementById("chipContainer");
     let currentAngle = 0;
     let isSpinning = false;
+    let lastSliceIndex = -1;
 
-    function saveChores() {
-      localStorage.setItem('chores_v2', JSON.stringify(chores));
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playClick() {
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.03);
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.03);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.03);
     }
 
+    function saveChores() { localStorage.setItem("chores_v2", JSON.stringify(chores)); }
     function renderChips() {
-      chips.innerHTML = '';
-      chores.forEach((chore, i) => {
-        const c = document.createElement('div');
-        c.className = 'chip';
-        c.innerHTML = `${chore} <span onclick="removeChore(${i})">&times;</span>`;
-        chips.appendChild(c);
+      chips.innerHTML = "";
+      chores.forEach((c, i) => {
+        const d = document.createElement("div");
+        d.className = "chip";
+        d.innerHTML = `${c} <span onclick="removeChore(${i})">&times;</span>`;
+        chips.appendChild(d);
       });
       drawWheel();
     }
-
-    window.removeChore = function(index) {
-      if (chores.length <= 2) {
-        alert("Keep at least 2 chores!");
-        return;
-      }
-      chores.splice(index, 1);
+    window.removeChore = function(idx) {
+      if (chores.length <= 2) return alert("Keep at least 2 chores!");
+      chores.splice(idx, 1);
       saveChores();
       renderChips();
     };
-
-    form.addEventListener('submit', (e) => {
+    form.addEventListener("submit", (e) => {
       e.preventDefault();
       const val = input.value.trim();
-      if (val) {
-        chores.push(val);
-        input.value = '';
-        saveChores();
-        renderChips();
-      }
+      if (val) { chores.push(val); input.value = ""; saveChores(); renderChips(); }
     });
-
     function drawWheel() {
       const total = chores.length;
       const arc = (2 * Math.PI) / total;
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
-      const r = cx - 12;
-
+      const cx = canvas.width / 2, cy = canvas.height / 2, r = cx - 12;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       chores.forEach((chore, i) => {
         const start = currentAngle + i * arc;
         const end = start + arc;
-
-        // Slice wedge
         ctx.beginPath();
         ctx.moveTo(cx, cy);
         ctx.arc(cx, cy, r, start, end);
         ctx.fillStyle = COLORS[i % COLORS.length];
         ctx.fill();
         ctx.lineWidth = 4;
-        ctx.strokeStyle = '#2d3436';
+        ctx.strokeStyle = "#2d3436";
         ctx.stroke();
-
-        // Slice text
         ctx.save();
         ctx.translate(cx, cy);
         ctx.rotate(start + arc / 2);
-        ctx.textAlign = 'right';
-        ctx.fillStyle = '#2d3436';
-        ctx.font = 'bold 24px sans-serif';
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#2d3436";
+        ctx.font = "bold 24px sans-serif";
         ctx.fillText(chore, r - 35, 8);
         ctx.restore();
       });
-
-      // Outer rim
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, 2 * Math.PI);
       ctx.lineWidth = 8;
-      ctx.strokeStyle = '#2d3436';
+      ctx.strokeStyle = "#2d3436";
       ctx.stroke();
     }
-
     function spin() {
       if (isSpinning || chores.length < 2) return;
       isSpinning = true;
       spinBtn.disabled = true;
-      banner.innerText = 'Spinning...';
-
-      const duration = 4000;
+      banner.innerText = "🌀 Spinning...";
+      const duration = 8500;
       const startAngle = currentAngle;
-      const extraRotations = (5 + Math.random() * 4) * 2 * Math.PI;
-      const randomOffset = Math.random() * 2 * Math.PI;
-      const targetAngle = startAngle + extraRotations + randomOffset;
+      const fullSpins = (14 + Math.random() * 5) * 2 * Math.PI;
+      const targetAngle = startAngle + fullSpins + Math.random() * 2 * Math.PI;
       const startTime = performance.now();
-
       function animate(now) {
         const elapsed = now - startTime;
         const t = Math.min(elapsed / duration, 1);
-        const ease = 1 - Math.pow(1 - t, 3);
-
+        const ease = 1 - Math.pow(1 - t, 5);
         currentAngle = startAngle + (targetAngle - startAngle) * ease;
         drawWheel();
-
+        const total = chores.length;
+        const arc = (2 * Math.PI) / total;
+        const normalized = (currentAngle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+        const pointerAngle = (3 * Math.PI / 2 - normalized + 2 * Math.PI) % (2 * Math.PI);
+        const currentSlice = Math.floor(pointerAngle / arc) % total;
+        if (currentSlice !== lastSliceIndex) {
+          lastSliceIndex = currentSlice;
+          playClick();
+          pointer.classList.add("tick");
+          setTimeout(() => pointer.classList.remove("tick"), 45);
+        }
         if (t < 1) {
           requestAnimationFrame(animate);
         } else {
@@ -344,19 +179,15 @@
       }
       requestAnimationFrame(animate);
     }
-
     function calcWinner() {
       const total = chores.length;
       const arc = (2 * Math.PI) / total;
-      // Pointer sits at the top (3*PI/2)
       const normalized = (currentAngle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
       const pointerAngle = (3 * Math.PI / 2 - normalized + 2 * Math.PI) % (2 * Math.PI);
       const winningIdx = Math.floor(pointerAngle / arc) % total;
-
-      banner.innerText = `🎉 Your chore is: ${chores[winningIdx]}!`;
+      banner.innerText = "🎉 Your chore is: " + chores[winningIdx] + "!";
     }
-
-    spinBtn.addEventListener('click', spin);
+    spinBtn.addEventListener("click", spin);
     renderChips();
   </script>
 </body>
